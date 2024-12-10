@@ -1,5 +1,5 @@
 # **✨ Miss Roxy Here✨**  
-   ![](roxybanner.jpg)
+   ![](Galery/roxybanner.jpg)
 > *“Your one-stop solution for crafting mesmerizing Android boot animations effortlessly!”*  
 
 ---  

@@ -11,7 +11,7 @@
    ✔️Below is the one shot code just copy past it. 
 
 ```
-apt update && apt upgrade -y && apt install git nano -y && git clone https://github.com/Mastermindtxt/bootanimation_bot && cd bootanimation_bot && pip install -r requirement.txt
+apt update && apt upgrade -y && apt install git nano -y && git clone https://github.com/Mastermindtxt/bootanimation_bot && cd bootanimation_bot && cd Roxy_Base_code && pip install -r requirement.txt
 
 ```
  3. **Now you have my Reposetory and base Structures**
@@ -19,7 +19,7 @@ apt update && apt upgrade -y && apt install git nano -y && git clone https://git
     Let's setup Your bot. 
         Move in my Reposetory and open Code file. 
 ```
-cd bootanimation_bot && nano base_code.py
+cd bootanimation_bot && cd Roxy_Base_code && nano base_code.py
     
 ```
 ---

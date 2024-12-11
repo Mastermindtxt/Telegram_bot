@@ -18,7 +18,7 @@ apt update && apt upgrade -y && apt install git nano -y && git clone https://git
     Let's setup Your bot. 
         Move in my Reposetory and open Code file. 
 ```
-cd bootanimation_bot && cd Roxy_Base_code && nano base_code.py
+cd bootanimation_bot && cd Roxy_Base_code && nano BASE-STRUCTUE.txt
     
 ```
 ---

@@ -31,7 +31,7 @@ cd bootanimation_bot && nano base_code.py
 
  Creator (owner) : [Mastermind_txt](t.me/Mastermind_txt)
 ---
-     ![](https://via.placeholder.com/150)
+![](https://via.placeholder.com/150)
  *Make sure you have a valid reason for PM* 
  *I am always help everyone so ask for help in group.* 
 

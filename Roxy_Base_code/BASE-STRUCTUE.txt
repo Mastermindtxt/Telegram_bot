@@ -1,14 +1,19 @@
 !#structure_format
 
-"""
-This is only a Example Structure of MISS_ROXY🧚🏻‍♀️.
-YOU CAN MAKE YOUR OWN BOT BY USING MY TEMPLATE😄. 
-😉MAKE SURE YOU GIVE CREDITS TO ME IN YOUR BOT DON'T BE NOOB😗 KK👍🏻. 
+##############################################################################
+##############################################################################
+#This is only a Example Structure of MISS_ROXY🧚🏻‍♀️.
+#YOU CAN MAKE YOUR OWN BOT BY USING MY TEMPLATE😄. 
+#😉MAKE SURE YOU GIVE CREDITS TO ME IN YOUR BOT DON'T BE NOOB😗 KK👍🏻. 
 
-OH😅 BY THE WAY IF YOU WANT TO LEARN MORE ABOUT TELEGRAM BOTS OR MISS ROXY AND WANT TO BUILD YOUR OWN BOT🦾 YOU SHOULD JOIN MY ✔️TELEGRAM GROup COPY THIS-👀👉🏻(https://t.me/Omniversal_creations_chat) OR 👀👉🏻(https://t.me/bootanimation_with_roxy) 
+#OH😅 BY THE WAY IF YOU WANT TO LEARN MORE ABOUT TELEGRAM BOTS OR MISS ROXY AND WANT TO BUILD YOUR OWN BOT🦾 YOU SHOULD JOIN MY ✔️TELEGRAM GROup COPY THIS-👀👉🏻(https://t.me/Omniversal_creations_chat) OR 👀👉🏻(https://t.me/bootanimation_with_roxy) 
 
-HAPPY BUILDING 😇
-"""
+#HAPPY BUILDING 😇
+##############################################################################
+##############################################################################
+
+
+
 # ============IMPORT AREA=============
 import os 
 import telegram.ext 

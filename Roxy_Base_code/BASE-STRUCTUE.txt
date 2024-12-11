@@ -1,0 +1,336 @@
+!#structure_format
+
+# ============IMPORT AREA=============
+import os 
+import telegram.ext 
+(etc) 
+# ====================================
+
+
+# ============DATA HANDLING==========
+def init_db():
+    """Initialize the database with the required schema."""
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS user_states (
+                user_id INTEGER PRIMARY KEY,
+                step INTEGER,
+                module_name TEXT,
+                dimension TEXT,
+                fps TEXT,
+                audio TEXT,
+                quality INTEGER,
+                video_file_id TEXT,
+                video_path TEXT
+            )
+        """)
+        conn.commit()
+
+def save_state(user_id, state):
+    """Save or update user state in the database."""
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO user_states (user_id, step, module_name, dimension, fps, audio, quality, video_file_id, video_path)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(user_id) DO UPDATE SET
+                step=excluded.step,
+                module_name=excluded.module_name,
+                dimension=excluded.dimension,
+                fps=excluded.fps,
+                audio=excluded.audio,
+                quality=excluded.quality,
+                video_file_id=excluded.video_file_id,
+                video_path=excluded.video_path
+        """, (
+            user_id,
+            state.get("step"),
+            state.get("module_name"),
+            state.get("dimension"),
+            state.get("fps"),
+            state.get("audio"),
+            state.get("quality"),
+            state.get("video_file_id"),
+            state.get("video_path"),
+        ))
+        conn.commit()
+
+def get_state(user_id):
+    """Retrieve user state from the database."""
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM user_states WHERE user_id = ?", (user_id,))
+        row = cursor.fetchone()
+        if row:
+            return {
+                "user_id": user_id,  # Ensure user_id is included
+                "step": row[1],
+                "module_name": row[2],
+                "dimension": row[3],
+                "fps": row[4],
+                "audio": row[5],
+                "quality": row[6],
+                "video_file_id": row[7],
+                "video_path": row[8],
+            }
+        return None
+
+def delete_state(user_id):
+    """Delete user state from the database."""
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM user_states WHERE user_id = ?", (user_id,))
+        conn.commit()
+# ====================================
+# ====================================
+
+
+# ============/b handler==============
+async def handle_b_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle the /b command."""
+    user = update.message.from_user
+    command_parts = update.message.text.split(maxsplit=1)
+
+    if len(command_parts) < 2:
+        await update.message.reply_text("Please provide a name using `/b [module_name]`.")
+        return
+
+    module_name = command_parts[1]
+
+    if not update.message.reply_to_message or not update.message.reply_to_message.video:
+        await update.message.reply_text("Please reply to a video to process.")
+        return
+
+    video = update.message.reply_to_message.video
+    video_file_id = video.file_id
+
+    state = {
+        "user_id": user.id,
+        "step": 1,
+        "module_name": module_name,
+        "dimension": None,
+        "fps": None,
+        "audio": None,
+        "quality": None,
+        "video_file_id": video_file_id,
+        "video_path": None,
+    }
+    save_state(user.id, state)
+
+    try:
+         await update.message.reply_text(f"Module `{module_name}` saved! Now, let’s select dimensions.")
+         await ask_for_dimensions(update, context)
+    except telegram.error.NetworkError as e:
+         logger.error(f"Network error occurred: {e}")
+         await update.message.reply_text("⚠️ Network error! Please try again later.")
+# ====================================
+# ====================================
+
+
+
+# ============QUIRY HANDLER==========
+async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    user_id = query.from_user.id
+    state = get_state(user_id)
+
+    if not state:
+        await query.message.reply_text("⚠️ Session expired. Please restart with /b.")
+        return
+
+    data = query.data
+
+    if data.startswith("dim_"):
+        state["dimension"] = data.split("_")[1]
+        save_state(user_id, state)
+        await query.message.delete()
+        await query.message.reply_text(f"✅ Dimension selected: {state['dimension']}")
+        await ask_for_fps(update, context)
+    elif data.startswith("fps_"):
+        state["fps"] = data.split("_")[1]
+        save_state(user_id, state)
+        await query.message.delete()
+        await query.message.reply_text(f"✅ FPS selected: {state['fps']}")
+        await ask_for_audio(update, context)
+    elif data.startswith("audio_"):
+        state["audio"] = "Yes" if data.endswith("_yes") else "No"
+        save_state(user_id, state)
+        await query.message.delete()
+        await query.message.reply_text(f"✅ Audio selection: {state['audio']}")
+        await ask_for_quality(update, context)
+    elif data.startswith("quality_"):
+        state["quality"] = int(data.split("_")[1])
+        save_state(user_id, state)
+        await query.message.delete()
+        await query.message.reply_text(f"✅ Quality selected: {state['quality']}")
+        await start_processing(state, query.message.chat.id, context)
+# ====================================
+# ====================================
+
+
+# ============INLINEKEYBOARDS========
+async def ask_for_dimensions(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Ask the user to select video dimensions."""
+    keyboard = [
+            [
+                InlineKeyboardButton("🎴 720x1650 (Poco C55 / Redmi 12C)", callback_data="dim_720x1650"),
+            ], 
+            [
+                InlineKeyboardButton("🃏 1080x1920", callback_data="dim_1080x1920"), 
+                InlineKeyboardButton("🃏 1440x2560", callback_data="dim_1440x2560"),
+            ], 
+            [
+                InlineKeyboardButton("🃏 750x1334", callback_data="dim_750x1334"),
+                InlineKeyboardButton("🃏 2160x3840", callback_data="dim_2160x3840"),
+            ], 
+            [
+                InlineKeyboardButton("🎴 720x1600 (Poco C55 / Redmi 13C)", callback_data="dim_720x1600"),
+            ],
+        ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text="🌐 **Select Video Dimensions:**\nChoose the resolution for your video processing:",
+        reply_markup=reply_markup,
+        parse_mode="Markdown"
+    )
+
+async def ask_for_fps(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Ask the user to select FPS."""
+    keyboard = [
+            [
+                InlineKeyboardButton("🎥 30 FPS", callback_data="fps_30"),
+                InlineKeyboardButton("🎥 45 FPS", callback_data="fps_45"),
+            ],
+            [
+                InlineKeyboardButton("🎥 60 FPS", callback_data="fps_60"),
+                InlineKeyboardButton("🎥 90 FPS", callback_data="fps_90"),
+            ],
+            [
+                InlineKeyboardButton("🎥 120 FPS", callback_data="fps_120"),
+            ],
+        ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text="🎞️ **Select FPS:**\nChoose how smooth your video should be:",
+        reply_markup=reply_markup,
+        parse_mode="Markdown"
+    )
+
+async def ask_for_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Ask the user if audio should be extracted."""
+    keyboard = [
+        [
+            InlineKeyboardButton("🔊 Yes, Include Audio", callback_data="audio_yes"),
+            InlineKeyboardButton("🔇 No, Skip Audio", callback_data="audio_no"),
+        ]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text="🔊 **Audio Settings:**\nWould you like to include audio in your module?",
+        reply_markup=reply_markup,
+        parse_mode="Markdown"
+    )
+
+async def ask_for_quality(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Ask the user to select video quality."""
+    keyboard = [
+            [
+                InlineKeyboardButton("🔥 High (size may so big)", callback_data="quality_1"),
+            ], 
+            [
+                InlineKeyboardButton("😶‍💫 Medium (good for use)", callback_data="quality_2"),
+            ],
+            [
+                InlineKeyboardButton("😵‍💫 Low (quality(X))", callback_data="quality_4"),
+            ],
+        ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text="🎚️ **Frame Quality:**\nChoose the quality of frames for animation (lower is better):",
+        reply_markup=reply_markup,
+        parse_mode="Markdown"
+    )
+# ====================================
+# ====================================
+
+
+# ============PROCESSING AREA========
+async def process_video(state, chat_id, context):
+    """Perform actual video processing and module creation."""
+    video_path = state.get("video_path")
+    if not os.path.exists(video_path):
+        await context.bot.send_message(chat_id, "⚠️ Video file not found. Please restart the process.")
+        return
+
+    # Fetch user-selected options
+    dimension = state.get("dimension")
+    fps = state.get("fps")
+    quality = int(state.get("quality"))  # Ensure quality is an integer (1, 2, 4)
+    include_audio = state.get("audio") == "Yes"
+
+    # Create necessary directories
+    boot_temp = os.path.join(MODULE_DIR, "boot_temp")
+    part0_folder = os.path.join(boot_temp, "part0")
+    os.makedirs(part0_folder, exist_ok=True)
+    os.makedirs(boot_temp, exist_ok=True)
+# ====================================
+# ====================================
+
+
+# ============PROCESSING STARTER=====
+async def start_processing(state: Dict[str, Any], chat_id: int, context):
+    """Download and process the video."""
+    video_file_id = state.get("video_file_id")
+
+    if not video_file_id:
+        await context.bot.send_message(chat_id, "⚠️ No video file ID found. Please restart the process.")
+        return
+
+    try:
+        # Ensure the download directory exists
+        os.makedirs(DOWNLOAD_DIR, exist_ok=True)
+
+        # Download the video
+        video_file = await context.bot.get_file(video_file_id)
+        progress_message = await context.bot.send_message(chat_id, "📥 Downloading the video...")
+        progress_message_id = progress_message.message_id  # Extract message ID after awaiting
+
+        video_path = os.path.join(DOWNLOAD_DIR, f"{video_file.file_unique_id}.mp4")
+        await video_file.download_to_drive(video_path)
+
+        # Save video path in state
+        state["video_path"] = video_path
+
+        # Validate and save state
+        user_id = state.get("user_id")
+        if not user_id:
+            raise ValueError("Missing user_id in state.")
+        save_state(user_id, state)
+
+        # Notify user and process the video
+        await context.bot.edit_message_text(
+            "⚙️ Video downloaded. Starting processing...",
+            chat_id=chat_id,
+            message_id=progress_message_id
+        )
+        await process_video(state, chat_id, context)
+# ====================================
+# ====================================
+
+
+
+# ============== MAIN ================
+if __name__ == "__main__":
+    init_db()
+    app = ApplicationBuilder().token(BOT_TOKEN).build()
+    app.add_handler(CommandHandler("b", handle_b_command))
+    app.add_handler(CallbackQueryHandler(handle_callback))
+    logger.info("Bot is running...")
+    app.run_polling()
+

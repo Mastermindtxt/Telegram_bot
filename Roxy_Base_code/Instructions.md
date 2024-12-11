@@ -7,7 +7,6 @@
 ---
 
 2.**Setup Libraries in your system.**
- 
    ✔️Below is the one shot code just copy past it. 
 
 ```
@@ -31,7 +30,7 @@ cd bootanimation_bot && cd Roxy_Base_code && nano base_code.py
 
  Creator (owner) : [Mastermind_txt](t.me/Mastermind_txt)
 ---
-![](https://via.placeholder.com/150)
  *Make sure you have a valid reason for PM* 
  *I am always help everyone so ask for help in group.* 
 
+<img src="https://github.com/Mastermindtxt/bootanimation_bot/blob/main/Galery/telebot.png" alt="" style="width:150px; height:auto;"><img src="https://github.com/Mastermindtxt/bootanimation_bot/blob/main/Galery/python.png" alt="" style="width:150px; height:auto;"><img src="https://github.com/Mastermindtxt/bootanimation_bot/blob/main/Galery/girhub.png" alt="" style="width:150px; height:auto;">

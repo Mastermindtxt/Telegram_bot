@@ -1,5 +1,11 @@
-# 👨🏻‍💻Setup Instructions. 
+# ☣️MOVE IN ELEMENTS FOLDER. 
+
+**You see all the Important Components which is required for creating a TELEGRAM BOT**
+**LIKE**: *INLINEKEYBOARDS, STARTING MECHANISM, AND FFMPEG CODE*
+
 ---
+## 👨🏻‍💻Setup Instructions. 
+
 1. **Install Work platform in your system.**
     - For Windows Use [Pycharme](https://www.jetbrains.com/pycharm/) or [VScode](https://code.visualstudio.com/).
     - For Android Use [Termux](https://f-droid.org/en/packages/com.termux/) or [PYdroid3](https://play.google.com/store/apps/details?id=ru.iiec.pydroid3).

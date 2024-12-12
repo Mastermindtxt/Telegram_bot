@@ -23,7 +23,7 @@
 
 ## **How to Use**  Miss Roxy? 🐤
 
-1. **Join my Telegram Group** : [Joing from here](https://t.me/Omniversal_creations_chat)
+1. **Join my Telegram Group** : [Join from here](https://t.me/Omniversal_creations_chat)
 2. **Get Info and Guide** : use this (`/roxy_guide`). 
 3. **Chose Modes** : (`/roxy`) or (`/aroxy`). 
 4. **Select dimensions** : Select the dimensions suitable for your device with (Inlinekeyboards). 

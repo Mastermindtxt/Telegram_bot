@@ -1,5 +1,5 @@
 # **✨ Miss Roxy Here✨**  
-   ![](Galery/roxybanner.jpg)
+   ![](https://github.com/Mastermindtxt/Mastermindtxt/blob/main/Galery/roxybanner.jpg)
 > *“Your one-stop solution for crafting mesmerizing Android boot animations effortlessly!”*  
 
 ---  
@@ -72,4 +72,4 @@ Any new ideas? **Make sure you Give suggestions In discussion section**
 
 ---
 # Enjoy 😊
-![](Galery/roxy.gif)
+![](https://github.com/Mastermindtxt/Mastermindtxt/blob/main/Galery/roxy.gif)
